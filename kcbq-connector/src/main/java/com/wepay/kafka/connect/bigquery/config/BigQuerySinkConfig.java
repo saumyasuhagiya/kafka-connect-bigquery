@@ -20,7 +20,6 @@
 package com.wepay.kafka.connect.bigquery.config;
 
 import com.google.cloud.bigquery.Schema;
-
 import com.google.cloud.bigquery.TimePartitioning;
 import com.wepay.kafka.connect.bigquery.api.SchemaRetriever;
 import com.wepay.kafka.connect.bigquery.convert.BigQueryRecordConverter;
@@ -632,7 +631,14 @@ public class BigQuerySinkConfig extends AbstractConfig {
             TIME_PARTITIONING_TYPE_CONFIG,
             TIME_PARTITIONING_TYPE_TYPE,
             TIME_PARTITIONING_TYPE_DEFAULT,
-            ConfigDef.CaseInsensitiveValidString.in(TIME_PARTITIONING_TYPES.toArray(new String[0])),
+            (name, value) -> {
+              if (value == null) {
+                return;
+              }
+              String[] validStrings = TIME_PARTITIONING_TYPES.stream().map(String::toLowerCase).toArray(String[]::new);
+              String lowercaseValue = ((String) value).toLowerCase();
+              ConfigDef.ValidString.in(validStrings).ensureValid(name, lowercaseValue);
+            },
             TIME_PARTITIONING_TYPE_IMPORTANCE,
             TIME_PARTITIONING_TYPE_DOC,
             "",
