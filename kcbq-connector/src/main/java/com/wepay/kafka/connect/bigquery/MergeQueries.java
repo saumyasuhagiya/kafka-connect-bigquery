@@ -291,7 +291,8 @@ public class MergeQueries {
             + "GROUP BY " + String.join(", ", keyFields)
           + ")"
         + ") "
-        + "ON `" + destinationTable.getTable() + "`." + keyFieldName + "=src." + key + " "
+        + "ON `" + destinationTable.getTable() + "`." + keyFieldName + "=src." + key +
+            "." + keyFieldName + " "
         + "WHEN MATCHED "
           + "THEN UPDATE SET " + valueColumns.stream().map(col -> "`" + col + "`=src." + value + "." + col).collect(Collectors.joining(", ")) + " "
         + "WHEN NOT MATCHED "
@@ -301,7 +302,7 @@ public class MergeQueries {
             + "`"
             + String.join("`, `", valueColumns) + "`) "
           + "VALUES ("
-            + "src." + key + ", "
+            + "src." + key + "." + keyFieldName + ", "
             + partitionTimeValue()
             + valueColumns.stream().map(col -> "src." + value + "." + col).collect(Collectors.joining(", "))
           + ");";
